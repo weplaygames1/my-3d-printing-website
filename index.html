@@ -9,7 +9,7 @@
 <body>
     <div class="calculator-container">
         <h1>3D Print Price Calculator</h1>
-        <p class="description">Estimate the cost and time for your 3D printing project.</p>
+        <p class="description">Estimate the cost and time for your 3D printing project. (10% Fixed Markup)</p>
 
         <form id="priceCalculator">
             
@@ -37,12 +37,7 @@
                 <label for="fixedFee">Order Fixed Fee (USD):</label>
                 <input type="number" id="fixedFee" value="0.00" step="0.50" min="0" required>
             </div>
-
-            <div class="input-group">
-                <label for="markup">Profit Markup Percentage (%):</label>
-                <input type="number" id="markup" value="50" step="1" min="0" required>
-            </div>
-
+            
             <button type="button" onclick="calculatePrice()">Calculate Price</button>
         </form>
 
@@ -58,13 +53,16 @@
 
     <script>
         function calculatePrice() {
+            // FIXED MARKUP VALUE (10%)
+            const markup = 0.10; 
+
             // Get input values
             const materialCost = parseFloat(document.getElementById('materialCost').value);
             const weight = parseFloat(document.getElementById('weight').value);
             const printTime = parseFloat(document.getElementById('printTime').value);
             const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
             const fixedFee = parseFloat(document.getElementById('fixedFee').value); 
-            const markup = parseFloat(document.getElementById('markup').value) / 100;
+            // Removed markup input retrieval
 
             // 1. Calculate Base Material Cost
             const finalMaterialCost = materialCost * weight;
@@ -75,7 +73,7 @@
             // 3. Calculate Total Base Cost (Material + Labor + Fixed Fee)
             const baseCost = finalMaterialCost + laborCost + fixedFee;
 
-            // 4. Apply Markup for Final Price
+            // 4. Apply FIXED Markup for Final Price
             const finalPrice = baseCost * (1 + markup);
 
             // Display Results
