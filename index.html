@@ -1,146 +1,92 @@
-:root {
-    /* Accent Color based on #31e619 */
-    --accent-color: #31e619; 
-    --accent-dark: #29b314;
-    --background-color: #1a1a1a;
-    --card-background: #282828;
-    --text-color: #f0f0f0;
-    --border-color: #444;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Printing Price Calculator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>3D Print Price Calculator</h1>
+        <p class="description">Estimate the cost and time for your 3D printing project.</p>
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-}
+        <form id="priceCalculator">
+            
+            <div class="input-group">
+                <label for="materialCost">Material Cost per Gram (USD):</label>
+                <input type="number" id="materialCost" value="0.05" step="0.01" min="0" required>
+            </div>
 
-.calculator-container {
-    background-color: var(--card-background);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 450px;
-    text-align: center;
-    border-top: 5px solid var(--accent-color);
-}
+            <div class="input-group">
+                <label for="weight">Model Weight (Grams):</label>
+                <input type="number" id="weight" value="10" step="1" min="1" required>
+            </div>
 
-h1 {
-    color: var(--accent-color);
-    margin-bottom: 5px;
-    font-size: 1.8em;
-}
+            <div class="input-group">
+                <label for="printTime">Print Time (Hours):</label>
+                <input type="number" id="printTime" value="4" step="0.1" min="0.1" required>
+            </div>
 
-.description {
-    color: #aaa;
-    margin-bottom: 25px;
-    font-style: italic;
-    font-size: 0.9em;
-}
+            <div class="input-group">
+                <label for="markup">Profit Markup Percentage (%):</label>
+                <input type="number" id="markup" value="50" step="1" min="0" required>
+            </div>
 
-.input-group {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border-color);
-}
+            <div class="input-group">
+                <label for="hourlyRate">Machine/Labor Hourly Rate (USD):</label>
+                <input type="number" id="hourlyRate" value="3.00" step="0.50" min="0" required>
+            </div>
 
-.input-group label {
-    font-weight: 600;
-    text-align: left;
-    flex-grow: 1;
-    padding-right: 10px;
-}
+            <div class="input-group">
+                <label for="failures">Estimated Failure Rate (%):</label>
+                <input type="number" id="failures" value="10" step="1" min="0" max="100" required>
+            </div>
 
-.input-group input[type="number"] {
-    width: 100px;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background-color: #333;
-    color: var(--text-color);
-    text-align: right;
-    font-size: 1em;
-}
+            <button type="button" onclick="calculatePrice()">Calculate Price</button>
+        </form>
 
-button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    background-color: var(--accent-color);
-    color: #1a1a1a;
-    font-size: 1.1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    margin-top: 20px;
-}
+        <div id="results" class="results-container" style="display: none;">
+            <h2>Estimated Cost</h2>
+            <p>Material Cost: <span id="materialResult">$0.00</span></p>
+            <p>Labor/Machine Cost: <span id="laborResult">$0.00</span></p>
+            <p class="final-price">Final Price: <span id="finalPriceResult">$0.00</span></p>
+        </div>
 
-button:hover {
-    background-color: var(--accent-dark);
-    transform: translateY(-1px);
-}
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScm39KBoHyAMGNVY5Z_kfig_tAEwyoOA5Lq5SgR0a0o5RYK3A/viewform?usp=preview" class="button" id="uploadFileButton" target="_blank">Upload Your Model</a>
+    </div>
 
-.results-container {
-    border-top: 1px solid var(--border-color);
-    margin-top: 30px;
-    padding-top: 20px;
-    text-align: left;
-    /* This style is controlled by the JavaScript */
-}
+    <script>
+        function calculatePrice() {
+            // Get input values
+            const materialCost = parseFloat(document.getElementById('materialCost').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const printTime = parseFloat(document.getElementById('printTime').value);
+            const markup = parseFloat(document.getElementById('markup').value) / 100;
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+            const failures = parseFloat(document.getElementById('failures').value) / 100;
 
-.results-container h2 {
-    color: var(--accent-color);
-    font-size: 1.4em;
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-align: center;
-}
+            // 1. Calculate Base Material Cost (with Failure Rate)
+            const rawMaterialCost = materialCost * weight;
+            const finalMaterialCost = rawMaterialCost / (1 - failures);
 
-.results-container p {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1em;
-    margin: 8px 0;
-}
+            // 2. Calculate Labor/Machine Cost (Hourly Rate * Time)
+            const laborCost = hourlyRate * printTime;
 
-.final-price {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: var(--text-color);
-    border-top: 2px dashed var(--border-color);
-    padding-top: 10px;
-    margin-top: 15px;
-}
+            // 3. Calculate Total Base Cost
+            const baseCost = finalMaterialCost + laborCost;
 
-.final-price span {
-    color: var(--accent-color);
-}
+            // 4. Apply Markup for Final Price
+            const finalPrice = baseCost * (1 + markup);
 
-/* Style for the Google Form link button */
-.button {
-    display: block;
-    width: 95%; /* Adjusting width slightly for padding */
-    margin: 25px auto 0 auto;
-    padding: 12px;
-    text-align: center;
-    text-decoration: none;
-    border: 2px solid var(--accent-color);
-    border-radius: 6px;
-    color: var(--accent-color);
-    font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.button:hover {
-    background-color: var(--accent-color);
-    color: var(--card-background);
-}s
+            // Display Results
+            document.getElementById('materialResult').textContent = `$${finalMaterialCost.toFixed(2)}`;
+            document.getElementById('laborResult').textContent = `$${laborCost.toFixed(2)}`;
+            document.getElementById('finalPriceResult').textContent = `$${finalPrice.toFixed(2)}`;
+            
+            // Show the results section
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
